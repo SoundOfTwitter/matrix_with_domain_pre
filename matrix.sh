@@ -77,7 +77,6 @@ registration_shared_secret: "$passwd_matrix"
 EOF
 
 apt install -y certbot python3-certbot-nginx
-certbot --nginx -d $server_domain --email $my_email --agree-tos --non-interactive
 
 # 配置 Nginx
 cat << EOF > /etc/nginx/sites-available/matrix
@@ -122,6 +121,8 @@ server {
 EOF
 
 ln -s /etc/nginx/sites-available/matrix /etc/nginx/sites-enabled/
+
+certbot --nginx -d $server_domain --email $my_email --agree-tos --non-interactive
 
 # 启用自动续期（使用 systemd 定时器）
 systemctl enable certbot.timer
