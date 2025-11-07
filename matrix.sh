@@ -76,8 +76,8 @@ registration_shared_secret: "$passwd_matrix"
 
 EOF
 
-apt install -y certbot
-certbot certonly --standalone -d $server_domain --email $my_email --agree-tos --non-interactive
+apt install -y certbot python3-certbot-nginx
+certbot --nginx -d $server_domain --email $my_email --agree-tos --non-interactive
 
 apt install -y nginx
 
@@ -87,6 +87,10 @@ cat << EOF > /etc/nginx/sites-available/matrix
 server {
     listen 80;
     server_name $server_domain;  # 替换为你的域名
+    location ~ /.well-known/acme-challenge/ {
+        allow all;
+        root /var/lib/letsencrypt/;
+    }
 
     # 强制所有HTTP流量重定向到HTTPS
     return 301 https://\$host\$request_uri;
