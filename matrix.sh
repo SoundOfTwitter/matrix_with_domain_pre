@@ -5,7 +5,7 @@ read -p "请输入 email: " my_email
 passwd_matrix=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 26)
 passwd_psycopg2=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 26)
 
-apt install -y lsb-release wget apt-transport-https
+apt install -y lsb-release wget apt-transport-https nginx
 wget -O /usr/share/keyrings/matrix-org-archive-keyring.gpg https://packages.matrix.org/debian/matrix-org-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/matrix-org-archive-keyring.gpg] https://packages.matrix.org/debian/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/matrix-org.list
 
@@ -79,8 +79,6 @@ EOF
 apt install -y certbot python3-certbot-nginx
 certbot --nginx -d $server_domain --email $my_email --agree-tos --non-interactive
 
-apt install -y nginx
-
 # 配置 Nginx
 cat << EOF > /etc/nginx/sites-available/matrix
 # /etc/nginx/sites-available/matrix
@@ -124,6 +122,11 @@ server {
 EOF
 
 ln -s /etc/nginx/sites-available/matrix /etc/nginx/sites-enabled/
+
+# 启用自动续期（使用 systemd 定时器）
+systemctl enable certbot.timer
+systemctl start certbot.timer
+
 systemctl restart nginx
 systemctl enable matrix-synapse
 systemctl start matrix-synapse
