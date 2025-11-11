@@ -1,11 +1,11 @@
 #!/bin/bash
 
 read -p "请输入 域名: " server_domain
-read -p "请输入 email: " my_email
+# read -p "请输入 email: " my_email
 passwd_matrix=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 26)
 passwd_psycopg2=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 26)
 
-apt install -y lsb-release wget apt-transport-https nginx
+apt install -y lsb-release wget apt-transport-https
 wget -O /usr/share/keyrings/matrix-org-archive-keyring.gpg https://packages.matrix.org/debian/matrix-org-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/matrix-org-archive-keyring.gpg] https://packages.matrix.org/debian/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/matrix-org.list
 
@@ -76,7 +76,37 @@ registration_shared_secret: "$passwd_matrix"
 
 EOF
 
+# 先安装nginx并配置webroot验证，避免端口冲突
+apt install -y nginx
+
+# 创建用于certbot验证的目录
+mkdir -p /var/www/certbot
+
+# 先配置一个临时的nginx服务器块用于获取证书
+cat << EOF > /etc/nginx/sites-available/matrix-temp
+server {
+    listen 80;
+    server_name $server_domain;
+    
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+    
+    location / {
+        return 404;
+    }
+}
+EOF
+
+ln -sf /etc/nginx/sites-available/matrix-temp /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+systemctl restart nginx
+
+# 安装certbot并使用webroot方式获取证书
 apt install -y certbot python3-certbot-nginx
+
+# 使用webroot方式获取初始证书
+certbot certonly --webroot -w /var/www/certbot -d $server_domain --email lin@hku-szh.org --agree-tos --non-interactive
 
 # 配置 Nginx
 cat << EOF > /etc/nginx/sites-available/matrix
@@ -84,9 +114,10 @@ cat << EOF > /etc/nginx/sites-available/matrix
 server {
     listen 80;
     server_name $server_domain;  # 替换为你的域名
-    location ~ /.well-known/acme-challenge/ {
-        allow all;
-        root /var/lib/letsencrypt/;
+
+    # ACME挑战用于证书续期
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
     }
 
     # 强制所有HTTP流量重定向到HTTPS
@@ -94,7 +125,7 @@ server {
 }
 
 server {
-    listen 443 ssl;
+    listen 443 ssl http2;
     server_name $server_domain;  # 替换为你的域名
 
     # 设置SSL证书路径（让Nginx使用Let's Encrypt证书）
@@ -104,7 +135,12 @@ server {
     # 安全性相关的设置
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers 'HIGH:!aNULL:!MD5';
-    ssl_prefer_server_ciphers on;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    # HSTS头
+    add_header Strict-Transport-Security "max-age=63072000" always;
 
     location / {
         proxy_pass http://127.0.0.1:8008;  # 将流量转发到Synapse的8008端口
@@ -116,19 +152,31 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
     }
-}
 
+    # 保留ACME挑战路径用于续期
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+}
 EOF
 
-ln -s /etc/nginx/sites-available/matrix /etc/nginx/sites-enabled/
+# 启用正式配置
+ln -sf /etc/nginx/sites-available/matrix /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/matrix-temp
+systemctl reload nginx
 
-certbot --nginx -d $server_domain --email $my_email --agree-tos --non-interactive
+# 设置自动续期
+# 测试续期（不实际安装）
+echo "测试证书续期..."
+certbot renew --dry-run
 
-# 启用自动续期（使用 systemd 定时器）
-systemctl enable certbot.timer
-systemctl start certbot.timer
+# 设置定时任务自动续期
+(crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/certbot renew --quiet --post-hook \"systemctl reload nginx\"") | crontab -
 
-systemctl restart nginx
 systemctl enable matrix-synapse
 systemctl start matrix-synapse
+
+echo "安装完成！证书自动续期已配置。"
+echo "系统将在10秒后重启..."
+sleep 10
 reboot
