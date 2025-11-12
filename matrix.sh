@@ -67,7 +67,7 @@ media_store_path: /var/lib/matrix-synapse/media
 signing_key_path: "/etc/matrix-synapse/homeserver.signing.key"
 trusted_key_servers:
   - server_name: "matrix.org"
-enable_registration: true
+enable_registration: false
 password_config:
   enabled: true  # 默认 true，确保未设置为 false（否则禁用本地密码功能，包括修改）
 # 无需电子邮件或 recaptcha 验证即可注册（其实不推荐）
