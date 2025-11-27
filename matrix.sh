@@ -115,13 +115,13 @@ listening-ip=0.0.0.0
 listening-port=3478
 
 # 外部 IP (如果服务器有多个 IP，请指定公网 IP)
-external-ip='$server_IP'
+external-ip=$server_IP
 
 # 证书配置 (可选，但推荐)
 # use-auth-secret 是关键，它允许 Synapse 动态生成用户名和密码
 use-auth-secret
-static-auth-secret='$passwd_turnserver'  # 必须与 homeserver.yaml 中的 turn_shared_secret 相同！
-realm='$server_domain'
+static-auth-secret=$passwd_turnserver  # 必须与 homeserver.yaml 中的 turn_shared_secret 相同！
+realm=$server_domain
 
 # 转发端口范围 (用于媒体流中继，范围越大越好)
 min-port=49152
@@ -132,7 +132,6 @@ stuns-port=3478
 turns-port=3478
 
 EOF
-
 
 # 先安装nginx并配置webroot验证，避免端口冲突
 apt install -y nginx
