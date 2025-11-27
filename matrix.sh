@@ -132,6 +132,8 @@ stuns-port=3478
 turns-port=3478
 
 EOF
+systemctl enable coturn
+systemctl start coturn
 
 # 先安装nginx并配置webroot验证，避免端口冲突
 apt install -y nginx
