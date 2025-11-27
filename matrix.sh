@@ -86,6 +86,22 @@ recaptcha_private_key: "6LeoeBksAAAAAHPvGPGn1E5R1zZXXzh9Sjg2akZ-"
 # 验证 API 地址，通常保持默认即可
 recaptcha_siteverify_api: "https://www.google.com/recaptcha/api/siteverify"
 
+# -------------------------------------------------------------------------
+# WebRTC/VoIP STUN/TURN 配置
+# -------------------------------------------------------------------------
+# 告诉客户端去哪里找 STUN/TURN 服务器
+# 你的 TURN 服务器同时提供 STUN 服务
+turn_uris:
+    # 必须提供 UDP 和 TCP 两种传输方式
+    - "turn:'$server_domain':3478?transport=udp"
+    - "turn:'$server_domain':3478?transport=tcp"
+    
+# 【关键】必须与 coturn 配置中的 static-auth-secret 保持一致！
+turn_shared_secret: "'$passwd_turnserver'"
+
+# 动态密码有效期 (毫秒)
+turn_user_lifetime: 86400000 # 24 小时
+
 EOF
 
 # 先安装nginx并配置webroot验证，避免端口冲突
