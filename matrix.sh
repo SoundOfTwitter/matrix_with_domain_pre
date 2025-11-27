@@ -67,6 +67,8 @@ media_store_path: /var/lib/matrix-synapse/media
 signing_key_path: "/etc/matrix-synapse/homeserver.signing.key"
 trusted_key_servers:
   - server_name: "matrix.org"
+max_avatar_size: 10M
+max_upload_size: 500M
 enable_registration: false
 password_config:
   enabled: true  # 默认 true，确保未设置为 false（否则禁用本地密码功能，包括修改）
@@ -151,6 +153,9 @@ server {
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
+        # 关键配置：设置允许的最大上传大小
+        # 建议设置为 100M 或更高，根据你的需求
+        client_max_body_size 500M;
     }
 
     # 保留ACME挑战路径用于续期
