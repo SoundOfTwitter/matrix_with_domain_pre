@@ -7,6 +7,9 @@ passwd_matrix=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 26)
 passwd_psycopg2=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 26)
 passwd_turnserver=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 26)
 
+echo $server_domain > /home/domain.txt
+echo "域名已写入 /home/domain.txt"
+
 apt install -y lsb-release wget apt-transport-https coturn
 wget -O /usr/share/keyrings/matrix-org-archive-keyring.gpg https://packages.matrix.org/debian/matrix-org-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/matrix-org-archive-keyring.gpg] https://packages.matrix.org/debian/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/matrix-org.list
