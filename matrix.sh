@@ -100,7 +100,7 @@ turn_uris:
     - "turn:$server_domain:3478?transport=tcp"
 
 # 【关键】必须与 coturn 配置中的 static-auth-secret 保持一致！
-turn_shared_secret: "'$passwd_turnserver'"
+turn_shared_secret: "$passwd_turnserver"
 
 # 动态密码有效期 (毫秒)
 turn_user_lifetime: 86400000 # 24 小时
