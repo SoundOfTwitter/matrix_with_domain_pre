@@ -69,12 +69,19 @@ trusted_key_servers:
   - server_name: "matrix.org"
 max_avatar_size: 10M
 max_upload_size: 500M
-enable_registration: false
 password_config:
   enabled: true  # 默认 true，确保未设置为 false（否则禁用本地密码功能，包括修改）
-# 无需电子邮件或 recaptcha 验证即可注册（其实不推荐）
-enable_registration_without_verification: true
 registration_shared_secret: "$passwd_matrix"
+enable_registration: true
+# 无需电子邮件或 recaptcha 验证即可注册（其实不推荐）
+# enable_registration_without_verification: true
+
+# 填入你在 Google 申请的 Site Key (网站密钥)
+recaptcha_public_key: "6LeoeBksAAAAAB6etQfHAgd5ZkZHqWhyFNoCUdJH"
+# 填入你在 Google 申请的 Secret Key (密钥)
+recaptcha_private_key: "6LeoeBksAAAAAHPvGPGn1E5R1zZXXzh9Sjg2akZ-"
+# 验证 API 地址，通常保持默认即可
+recaptcha_siteverify_api: "https://www.google.com/recaptcha/api/siteverify"
 
 EOF
 
