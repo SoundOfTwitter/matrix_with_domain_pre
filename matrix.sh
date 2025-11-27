@@ -96,8 +96,8 @@ recaptcha_siteverify_api: "https://www.google.com/recaptcha/api/siteverify"
 # 你的 TURN 服务器同时提供 STUN 服务
 turn_uris:
     # 必须提供 UDP 和 TCP 两种传输方式
-    - "turn:'$server_domain':3478?transport=udp"
-    - "turn:'$server_domain':3478?transport=tcp"
+    - "turn:$server_domain:3478?transport=udp"
+    - "turn:$server_domain:3478?transport=tcp"
 
 # 【关键】必须与 coturn 配置中的 static-auth-secret 保持一致！
 turn_shared_secret: "'$passwd_turnserver'"
