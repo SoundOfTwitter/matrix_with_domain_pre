@@ -104,6 +104,36 @@ turn_user_lifetime: 86400000 # 24 小时
 
 EOF
 
+# 配置/etc/turnserver.conf
+cat << EOF > /etc/turnserver.conf
+# 确保文件是干净的，注释掉所有默认示例配置，添加以下关键行：
+
+# 监听地址 (通常是服务器的公共 IP 或 0.0.0.0)
+listening-ip=0.0.0.0
+
+# 监听端口
+listening-port=3478
+
+# 外部 IP (如果服务器有多个 IP，请指定公网 IP)
+external-ip='$server_IP'
+
+# 证书配置 (可选，但推荐)
+# use-auth-secret 是关键，它允许 Synapse 动态生成用户名和密码
+use-auth-secret
+static-auth-secret='$passwd_turnserver'  # 必须与 homeserver.yaml 中的 turn_shared_secret 相同！
+realm='$server_domain'
+
+# 转发端口范围 (用于媒体流中继，范围越大越好)
+min-port=49152
+max-port=65535
+
+# 启用 STUN 和 TURN 服务
+stuns-port=3478
+turns-port=3478
+
+EOF
+
+
 # 先安装nginx并配置webroot验证，避免端口冲突
 apt install -y nginx
 
