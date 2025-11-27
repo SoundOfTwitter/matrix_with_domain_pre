@@ -168,7 +168,7 @@ systemctl restart nginx
 apt install -y certbot python3-certbot-nginx
 
 # 使用webroot方式获取初始证书
-certbot certonly --webroot -w /var/www/certbot -d $server_domain --email lin@hku-szh.org --agree-tos --non-interactive
+certbot certonly --webroot -w /var/www/certbot -d $server_domain --email liuxt2@hku-szh.org --agree-tos --non-interactive
 
 # 配置 Nginx
 cat << EOF > /etc/nginx/sites-available/matrix
