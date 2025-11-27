@@ -73,6 +73,7 @@ password_config:
   enabled: true  # 默认 true，确保未设置为 false（否则禁用本地密码功能，包括修改）
 registration_shared_secret: "$passwd_matrix"
 enable_registration: true
+enable_registration_captcha: true
 # 无需电子邮件或 recaptcha 验证即可注册（其实不推荐）
 # enable_registration_without_verification: true
 
