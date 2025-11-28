@@ -2,6 +2,8 @@
 
 read -p "请输入 域名: " server_domain
 read -p "请输入 IP: " server_IP
+read -p "请输入 在Google申请的网站密钥: " google_webkey
+read -p "请输入 在Google申请的密钥: " google_key
 # read -p "请输入 email: " my_email
 passwd_matrix=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 26)
 passwd_psycopg2=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 26)
@@ -83,9 +85,9 @@ enable_registration_captcha: true
 # enable_registration_without_verification: true
 
 # 填入你在 Google 申请的 Site Key (网站密钥)
-recaptcha_public_key: "6LeoeBksAAAAAB6etQfHAgd5ZkZHqWhyFNoCUdJH"
+recaptcha_public_key: "$google_webkey"
 # 填入你在 Google 申请的 Secret Key (密钥)
-recaptcha_private_key: "6LeoeBksAAAAAHPvGPGn1E5R1zZXXzh9Sjg2akZ-"
+recaptcha_private_key: "$google_key"
 # 验证 API 地址，通常保持默认即可
 recaptcha_siteverify_api: "https://www.google.com/recaptcha/api/siteverify"
 
